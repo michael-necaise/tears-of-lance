@@ -112,11 +112,10 @@ function format(num) {
 }
 
 function updateSprucePower() {
-  const thousands = Math.floor(state.tears / 1000);
-  if (thousands >= 1) {
+  if (state.tears >= 1000) {
     state.spruceUnlocked = true;
-    // Stronger scaling: 2x at 1k, +1x per additional 1k, capped at 10x
-    state.sprucePower = Math.min(10, 1 + thousands);
+    // Linear scale: 1x at 0, reaches 10x at 100,000 tears
+    state.sprucePower = Math.min(10, 1 + (state.tears / 100000) * 9);
   } else {
     state.spruceUnlocked = false;
     state.sprucePower = 1;
