@@ -157,8 +157,9 @@ function render() {
   }
 
   const summitEl = document.getElementById('summitMessage');
+  const summitText = document.getElementById('summitText');
   if (everythingMaxed()) {
-    summitEl.textContent = 'Congratulations, you summited the mountain! 🏔\ufe0f💧';
+    summitText.textContent = 'Congratulations, you summited the mountain! 🏔\ufe0f💧';
     summitEl.style.display = 'block';
   } else {
     summitEl.style.display = 'none';
