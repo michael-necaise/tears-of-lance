@@ -1,5 +1,5 @@
 const MAX_OWNED = 69;
-const SAVE_KEY = 'tearsOfLance_v2'; // Changed to force reset for everyone
+const SAVE_KEY = 'tearsOfLance_v3'; // Bumped to apply new balance + cost fix cleanly
 
 const books = [
   {
@@ -100,7 +100,7 @@ function load() {
 function save() {
   localStorage.setItem(SAVE_KEY, JSON.stringify({
     state,
-    books: books.map(b => ({ owned: b.owned, unlocked: b.unlocked, baseTps: b.baseTps })),
+    books: books.map(b => ({ owned: b.owned, unlocked: b.unlocked, baseTps: b.baseTps, cost: b.cost })),
     upgrades: upgrades.map(u => ({ owned: u.owned, cost: u.cost }))
   }));
 }
@@ -115,8 +115,8 @@ function updateSprucePower() {
   const thousands = Math.floor(state.tears / 1000);
   if (thousands >= 1) {
     state.spruceUnlocked = true;
-    // Much gentler: 1.1x at 1k, then +0.1x per additional 1k (capped at 5x)
-    state.sprucePower = Math.min(5, 1.0 + (thousands * 0.1));
+    // Stronger scaling: 2x at 1k, +1x per additional 1k, capped at 10x
+    state.sprucePower = Math.min(10, 1 + thousands);
   } else {
     state.spruceUnlocked = false;
     state.sprucePower = 1;
