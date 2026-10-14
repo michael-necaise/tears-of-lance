@@ -2,7 +2,7 @@
 
 An idle game celebrating the heartfelt children's books of author **Lance Wade Fresquez**.
 
-Generate tears by reading (and crying over) his stories. A fun, light-hearted way to promote *Carry Me, Dad* and *Through Maya's Eyes*.
+Generate tears by reading (and crying over) his stories. A fun, light-hearted way to promote *Carry Me, Dad*, *Through Maya's Eyes*, and *Walk with Me*.
 
 ## How to Play
 
@@ -16,6 +16,7 @@ Generate tears by reading (and crying over) his stories. A fun, light-hearted wa
 
 - **Carry Me, Dad** — A tender story of a father carrying his son through life's mountains and valleys. Written for his son Owen after a multiple sclerosis diagnosis.
 - **Through Maya's Eyes** — About a blind chocolate lab named Maya who sees the strength and beauty in all her friends. A story of inclusion.
+- **Walk with Me** — A heartfelt journey of walking side by side through life's paths and moments.
 
 Links to purchase on Amazon are included in the game.
 
