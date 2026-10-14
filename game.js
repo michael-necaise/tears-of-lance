@@ -114,8 +114,8 @@ function updateSprucePower() {
   const thousands = Math.floor(state.tears / 1000);
   if (thousands >= 1) {
     state.spruceUnlocked = true;
-    // 1.5x at 1k, then +0.5x for every additional 1k
-    state.sprucePower = 1.0 + (thousands * 0.5);
+    // Much gentler: 1.1x at 1k, then +0.1x per additional 1k (capped at 5x)
+    state.sprucePower = Math.min(5, 1.0 + (thousands * 0.1));
   } else {
     state.spruceUnlocked = false;
     state.sprucePower = 1;
