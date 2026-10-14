@@ -58,6 +58,14 @@ const upgrades = [
     cost: 100,
     effect: () => { state.multiplier *= 1.69; },
     owned: 0
+  },
+  {
+    id: 'momentum',
+    name: 'Trail Momentum',
+    description: 'Pick up speed on the trail. Doubles all tear production.',
+    cost: 500,
+    effect: () => { state.multiplier *= 2; },
+    owned: 0
   }
 ];
 
@@ -244,6 +252,7 @@ function resetProgress() {
     if (u.id === 'tissues') u.cost = 25;
     if (u.id === 'reread') u.cost = 100;
     if (u.id === 'emotional') u.cost = 200;
+    if (u.id === 'momentum') u.cost = 500;
   });
 
   localStorage.removeItem(SAVE_KEY);
