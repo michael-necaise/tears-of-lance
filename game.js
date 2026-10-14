@@ -106,6 +106,7 @@ function save() {
 }
 
 function format(num) {
+  if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
   if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
   if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K';
   return Math.floor(num).toLocaleString();
@@ -114,17 +115,11 @@ function format(num) {
 function updateSprucePower() {
   if (state.tears >= 1000) {
     state.spruceUnlocked = true;
-    let power;
-    if (state.tears < 500000) {
-      // 1x at 0 → 25x at 500k
-      power = 1 + (state.tears / 500000) * 24;
-    } else if (state.tears < 1000000) {
-      // 25x at 500k → 50x at 1M
-      power = 25 + ((state.tears - 500000) / 500000) * 25;
-    } else {
-      power = 50;
-    }
-    state.sprucePower = Math.min(50, power);
+    // Smooth curve aiming for ~10x at 100k, ~25x at 1M, ~50x at 10M, and 100x at 1B
+    const t = Math.min(state.tears / 1e9, 1);
+    // Power curve so it grows faster later
+    state.sprucePower = 1 + (99 * Math.pow(t, 0.6));
+    state.sprucePower = Math.min(100, state.sprucePower);
   } else {
     state.spruceUnlocked = false;
     state.sprucePower = 1;
@@ -138,7 +133,7 @@ function calculateTps() {
 
 function render() {
   document.getElementById('tears').textContent = format(state.tears);
-  document.getElementById('tps').textContent = calculateTps().toFixed(2);
+  document.getElementById('tps').textContent = format(calculateTps());
   document.getElementById('clickPower').textContent = state.clickPower;
 
   const spruceEl = document.getElementById('sprucePower');
@@ -161,7 +156,7 @@ function render() {
       </div>
       <div class="book-stats">
         ${b.unlocked ? `
-          <div>${(b.owned * b.baseTps * state.multiplier * state.sprucePower).toFixed(2)} tears/sec</div>
+          <div>${format(b.owned * b.baseTps * state.multiplier * state.sprucePower)} tears/sec</div>
           ${b.cost > 0 && !atMax ? `<button class="buy-btn" onclick="buyBook('${b.id}')" ${state.tears < b.cost ? 'disabled' : ''}>Buy for ${format(b.cost)} 💧</button>` : atMax ? '<div>Maxed (69)</div>' : '<div>Starting book</div>'}
         ` : `<div style="color:var(--muted)">Unlock at ${format(b.cost)} tears</div>`}
       </div>
