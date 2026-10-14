@@ -209,6 +209,48 @@ function cry() {
   render();
 }
 
+function resetProgress() {
+  if (!confirm('Reset all progress? This cannot be undone.')) return;
+
+  // Reset state
+  state = {
+    tears: 0,
+    clickPower: 1,
+    multiplier: 1,
+    spruceUnlocked: false,
+    sprucePower: 1,
+    lastSave: Date.now()
+  };
+
+  // Reset books to initial values
+  books[0].owned = 1;
+  books[0].cost = 0;
+  books[0].unlocked = true;
+  books[0].baseTps = 0.5;
+
+  books[1].owned = 0;
+  books[1].cost = 50;
+  books[1].unlocked = false;
+  books[1].baseTps = 1.2;
+
+  books[2].owned = 0;
+  books[2].cost = 250;
+  books[2].unlocked = false;
+  books[2].baseTps = 2.0;
+
+  // Reset upgrades
+  upgrades.forEach(u => {
+    u.owned = 0;
+    if (u.id === 'tissues') u.cost = 25;
+    if (u.id === 'reread') u.cost = 100;
+    if (u.id === 'emotional') u.cost = 200;
+  });
+
+  localStorage.removeItem(SAVE_KEY);
+  updateSprucePower();
+  render();
+}
+
 function tick() {
   state.tears += calculateTps() / 10; // 100ms interval
   // Unlock books based on tear thresholds
@@ -224,6 +266,7 @@ function tick() {
 }
 
 document.getElementById('cryButton').addEventListener('click', cry);
+document.getElementById('resetButton').addEventListener('click', resetProgress);
 
 load();
 updateSprucePower();
