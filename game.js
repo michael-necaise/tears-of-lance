@@ -114,8 +114,17 @@ function format(num) {
 function updateSprucePower() {
   if (state.tears >= 1000) {
     state.spruceUnlocked = true;
-    // Linear scale: 1x at 0, reaches 10x at 100,000 tears
-    state.sprucePower = Math.min(10, 1 + (state.tears / 100000) * 9);
+    let power;
+    if (state.tears < 500000) {
+      // 1x at 0 → 25x at 500k
+      power = 1 + (state.tears / 500000) * 24;
+    } else if (state.tears < 1000000) {
+      // 25x at 500k → 50x at 1M
+      power = 25 + ((state.tears - 500000) / 500000) * 25;
+    } else {
+      power = 50;
+    }
+    state.sprucePower = Math.min(50, power);
   } else {
     state.spruceUnlocked = false;
     state.sprucePower = 1;
