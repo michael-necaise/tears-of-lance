@@ -115,11 +115,9 @@ function format(num) {
 function updateSprucePower() {
   if (state.tears >= 1000) {
     state.spruceUnlocked = true;
-    // Smooth curve aiming for ~10x at 100k, ~25x at 1M, ~50x at 10M, and 100x at 1B
-    const t = Math.min(state.tears / 1e9, 1);
-    // Power curve so it grows faster later
-    state.sprucePower = 1 + (99 * Math.pow(t, 0.6));
-    state.sprucePower = Math.min(100, state.sprucePower);
+    // +0.01x for every 1,000 tears
+    const thousands = Math.floor(state.tears / 1000);
+    state.sprucePower = 1 + (thousands * 0.01);
   } else {
     state.spruceUnlocked = false;
     state.sprucePower = 1;
@@ -138,7 +136,7 @@ function render() {
 
   const spruceEl = document.getElementById('sprucePower');
   if (state.spruceUnlocked) {
-    spruceEl.textContent = state.sprucePower.toFixed(1) + 'x';
+    spruceEl.textContent = state.sprucePower.toFixed(2) + 'x';
     spruceEl.parentElement.querySelector('.label').textContent = 'Spruce Power';
   } else {
     spruceEl.textContent = 'Locked';
