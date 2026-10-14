@@ -1,4 +1,5 @@
 const MAX_OWNED = 69;
+const SAVE_KEY = 'tearsOfLance_v2'; // Changed to force reset for everyone
 
 const books = [
   {
@@ -83,7 +84,7 @@ const cryMessages = [
 ];
 
 function load() {
-  const saved = localStorage.getItem('tearsOfLance');
+  const saved = localStorage.getItem(SAVE_KEY);
   if (saved) {
     const data = JSON.parse(saved);
     state = { ...state, ...data.state };
@@ -97,7 +98,7 @@ function load() {
 }
 
 function save() {
-  localStorage.setItem('tearsOfLance', JSON.stringify({
+  localStorage.setItem(SAVE_KEY, JSON.stringify({
     state,
     books: books.map(b => ({ owned: b.owned, unlocked: b.unlocked, baseTps: b.baseTps })),
     upgrades: upgrades.map(u => ({ owned: u.owned, cost: u.cost }))
