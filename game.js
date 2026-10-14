@@ -1,3 +1,5 @@
+const MAX_OWNED = 69;
+
 const books = [
   {
     id: 'carry-me',
@@ -62,6 +64,8 @@ let state = {
   tears: 0,
   clickPower: 1,
   multiplier: 1,
+  spruceUnlocked: false,
+  sprucePower: 1,
   lastSave: Date.now()
 };
 
@@ -72,6 +76,7 @@ const cryMessages = [
   "Carry me through this feeling.",
   "Maya sees the beauty in the tears too.",
   "Walk with me through the feels.",
+  "Spruce power activated!",
   "A father's love is powerful.",
   "Strength in vulnerability.",
   "More tears incoming..."
@@ -106,7 +111,8 @@ function format(num) {
 }
 
 function calculateTps() {
-  return books.reduce((sum, b) => sum + (b.owned * b.baseTps * state.multiplier), 0);
+  const base = books.reduce((sum, b) => sum + (b.owned * b.baseTps * state.multiplier), 0);
+  return base * state.sprucePower;
 }
 
 function render() {
@@ -114,40 +120,52 @@ function render() {
   document.getElementById('tps').textContent = calculateTps().toFixed(2);
   document.getElementById('clickPower').textContent = state.clickPower;
 
+  const spruceEl = document.getElementById('sprucePower');
+  if (state.spruceUnlocked) {
+    spruceEl.textContent = state.sprucePower.toFixed(1) + 'x';
+    spruceEl.parentElement.querySelector('.label').textContent = 'Spruce Power';
+  } else {
+    spruceEl.textContent = 'Locked';
+  }
+
   const booksEl = document.getElementById('booksList');
-  booksEl.innerHTML = books.map(b => `
+  booksEl.innerHTML = books.map(b => {
+    const atMax = b.owned >= MAX_OWNED;
+    return `
     <div class="book">
       <div class="book-info">
-        <div class="book-name">${b.name} ${b.owned ? `(x${b.owned})` : ''}</div>
+        <div class="book-name">${b.name} ${b.owned ? `(x${b.owned}${atMax ? ' MAX' : ''})` : ''}</div>
         <div class="book-desc">${b.description}</div>
         ${b.amazon ? `<a href="${b.amazon}" target="_blank" style="font-size:0.85rem;color:var(--accent);">Get the real book →</a>` : ''}
       </div>
       <div class="book-stats">
         ${b.unlocked ? `
-          <div>${(b.owned * b.baseTps * state.multiplier).toFixed(2)} tears/sec</div>
-          ${b.cost > 0 ? `<button class="buy-btn" onclick="buyBook('${b.id}')" ${state.tears < b.cost ? 'disabled' : ''}>Buy for ${format(b.cost)} 💧</button>` : '<div>Starting book</div>'}
+          <div>${(b.owned * b.baseTps * state.multiplier * state.sprucePower).toFixed(2)} tears/sec</div>
+          ${b.cost > 0 && !atMax ? `<button class="buy-btn" onclick="buyBook('${b.id}')" ${state.tears < b.cost ? 'disabled' : ''}>Buy for ${format(b.cost)} 💧</button>` : atMax ? '<div>Maxed (69)</div>' : '<div>Starting book</div>'}
         ` : `<div style="color:var(--muted)">Unlock at ${format(b.cost)} tears</div>`}
       </div>
     </div>
-  `).join('');
+  `;}).join('');
 
   const shopEl = document.getElementById('shopList');
-  shopEl.innerHTML = upgrades.map(u => `
+  shopEl.innerHTML = upgrades.map(u => {
+    const atMax = u.owned >= MAX_OWNED;
+    return `
     <div class="upgrade">
       <div class="upgrade-info">
-        <div class="upgrade-name">${u.name} ${u.owned ? `(x${u.owned})` : ''}</div>
+        <div class="upgrade-name">${u.name} ${u.owned ? `(x${u.owned}${atMax ? ' MAX' : ''})` : ''}</div>
         <div class="upgrade-desc">${u.description}</div>
       </div>
       <div class="upgrade-cost">
-        <button class="buy-btn" onclick="buyUpgrade('${u.id}')" ${state.tears < u.cost ? 'disabled' : ''}>Buy for ${format(u.cost)} 💧</button>
+        ${!atMax ? `<button class="buy-btn" onclick="buyUpgrade('${u.id}')" ${state.tears < u.cost ? 'disabled' : ''}>Buy for ${format(u.cost)} 💧</button>` : '<div>Maxed (69)</div>'}
       </div>
     </div>
-  `).join('');
+  `;}).join('');
 }
 
 function buyBook(id) {
   const book = books.find(b => b.id === id);
-  if (!book || state.tears < book.cost) return;
+  if (!book || state.tears < book.cost || book.owned >= MAX_OWNED) return;
   state.tears -= book.cost;
   book.owned += 1;
   book.cost = Math.floor(book.cost * 1.5);
@@ -158,7 +176,7 @@ function buyBook(id) {
 
 function buyUpgrade(id) {
   const up = upgrades.find(u => u.id === id);
-  if (!up || state.tears < up.cost) return;
+  if (!up || state.tears < up.cost || up.owned >= MAX_OWNED) return;
   state.tears -= up.cost;
   up.owned += 1;
   up.effect();
@@ -184,6 +202,11 @@ function tick() {
   }
   if (state.tears >= 250 && !books[2].unlocked) {
     books[2].unlocked = true;
+  }
+  // Unlock Spruce Power at 1000 tears
+  if (state.tears >= 1000 && !state.spruceUnlocked) {
+    state.spruceUnlocked = true;
+    state.sprucePower = 1.5;
   }
   render();
   if (Math.random() < 0.05) save(); // occasional auto-save
