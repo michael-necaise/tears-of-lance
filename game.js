@@ -137,6 +137,12 @@ function calculateTps() {
   return base * state.sprucePower;
 }
 
+function everythingMaxed() {
+  const booksMaxed = books.every(b => b.owned >= MAX_OWNED);
+  const upgradesMaxed = upgrades.every(u => u.owned >= MAX_OWNED);
+  return booksMaxed && upgradesMaxed;
+}
+
 function render() {
   document.getElementById('tears').textContent = format(state.tears);
   document.getElementById('tps').textContent = format(calculateTps());
@@ -148,6 +154,14 @@ function render() {
     spruceEl.parentElement.querySelector('.label').textContent = 'Spruce Power';
   } else {
     spruceEl.textContent = 'Locked';
+  }
+
+  const summitEl = document.getElementById('summitMessage');
+  if (everythingMaxed()) {
+    summitEl.textContent = 'Congratulations, you summited the mountain! 🏔\ufe0f💧';
+    summitEl.style.display = 'block';
+  } else {
+    summitEl.style.display = 'none';
   }
 
   const booksEl = document.getElementById('booksList');
