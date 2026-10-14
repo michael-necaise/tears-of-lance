@@ -110,6 +110,18 @@ function format(num) {
   return Math.floor(num).toLocaleString();
 }
 
+function updateSprucePower() {
+  const thousands = Math.floor(state.tears / 1000);
+  if (thousands >= 1) {
+    state.spruceUnlocked = true;
+    // 1.5x at 1k, then +0.5x for every additional 1k
+    state.sprucePower = 1.0 + (thousands * 0.5);
+  } else {
+    state.spruceUnlocked = false;
+    state.sprucePower = 1;
+  }
+}
+
 function calculateTps() {
   const base = books.reduce((sum, b) => sum + (b.owned * b.baseTps * state.multiplier), 0);
   return base * state.sprucePower;
@@ -190,6 +202,7 @@ function cry() {
   const msg = cryMessages[Math.floor(Math.random() * cryMessages.length)];
   document.getElementById('cryMessage').textContent = msg;
   setTimeout(() => { document.getElementById('cryMessage').textContent = ''; }, 2000);
+  updateSprucePower();
   save();
   render();
 }
@@ -203,11 +216,7 @@ function tick() {
   if (state.tears >= 250 && !books[2].unlocked) {
     books[2].unlocked = true;
   }
-  // Unlock Spruce Power at 1000 tears
-  if (state.tears >= 1000 && !state.spruceUnlocked) {
-    state.spruceUnlocked = true;
-    state.sprucePower = 1.5;
-  }
+  updateSprucePower();
   render();
   if (Math.random() < 0.05) save(); // occasional auto-save
 }
@@ -215,6 +224,7 @@ function tick() {
 document.getElementById('cryButton').addEventListener('click', cry);
 
 load();
+updateSprucePower();
 render();
 setInterval(tick, 100);
 setInterval(save, 5000);
