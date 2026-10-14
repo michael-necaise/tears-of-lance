@@ -18,6 +18,16 @@ const books = [
     cost: 50,
     unlocked: false,
     amazon: 'https://www.amazon.com/Through-Mayas-Eyes-Lance-Fresquez/dp/B0DPH4ZR4Q'
+  },
+  {
+    id: 'walk-with-me',
+    name: 'Walk with Me',
+    description: 'A heartfelt journey of walking side by side through life\'s paths, moments, and challenges. Another story that hits right in the feels.',
+    baseTps: 2.0,
+    owned: 0,
+    cost: 250,
+    unlocked: false,
+    amazon: 'https://a.co/d/0aWb3Vop'
   }
 ];
 
@@ -61,6 +71,7 @@ const cryMessages = [
   "These stories hit different.",
   "Carry me through this feeling.",
   "Maya sees the beauty in the tears too.",
+  "Walk with me through the feels.",
   "A father's love is powerful.",
   "Strength in vulnerability.",
   "More tears incoming..."
@@ -167,8 +178,12 @@ function cry() {
 
 function tick() {
   state.tears += calculateTps() / 10; // 100ms interval
+  // Unlock books based on tear thresholds
   if (state.tears >= 50 && !books[1].unlocked) {
     books[1].unlocked = true;
+  }
+  if (state.tears >= 250 && !books[2].unlocked) {
+    books[2].unlocked = true;
   }
   render();
   if (Math.random() < 0.05) save(); // occasional auto-save
@@ -180,11 +195,3 @@ load();
 render();
 setInterval(tick, 100);
 setInterval(save, 5000);
-
-// Unlock Maya when enough tears
-setInterval(() => {
-  if (state.tears >= books[1].cost && !books[1].unlocked) {
-    books[1].unlocked = true;
-    render();
-  }
-}, 1000);
