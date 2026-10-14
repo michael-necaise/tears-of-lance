@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tears of Lance | Idle Game</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Tears of Lance 💧</h1>
+      <p class="subtitle">An idle game celebrating the heartfelt stories of author Lance Wade Fresquez.<br>His books make you cry... so let's generate some tears!</p>
+    </header>
+
+    <section class="stats">
+      <div class="stat">
+        <span class="label">Tears</span>
+        <span id="tears" class="value">0</span>
+      </div>
+      <div class="stat">
+        <span class="label">Tears / sec</span>
+        <span id="tps" class="value">0</span>
+      </div>
+      <div class="stat">
+        <span class="label">Click Power</span>
+        <span id="clickPower" class="value">1</span>
+      </div>
+    </section>
+
+    <section class="main-action">
+      <button id="cryButton" class="cry-btn">Read & Cry 💧</button>
+      <p id="cryMessage" class="message"></p>
+    </section>
+
+    <section class="books">
+      <h2>The Bookshelf</h2>
+      <div id="booksList"></div>
+    </section>
+
+    <section class="shop">
+      <h2>Upgrades</h2>
+      <div id="shopList"></div>
+    </section>
+
+    <section class="about">
+      <h2>About Lance Wade Fresquez</h2>
+      <p>Lance Fresquez is a small-town gentleman who loves his family and friends more than anything. His journey in writing was inspired by his beloved son, Owen. After a life-altering diagnosis of multiple sclerosis in December 2022, he wrote his debut book <strong>Carry Me, Dad</strong> to leave his son a meaningful message about the adversities of life.</p>
+      <p>His second book, <strong>Through Maya's Eyes</strong>, is dedicated to children with physical and learning differences — a story about a blind chocolate lab named Maya who sees the strength and beauty in all her friends.</p>
+      <p>These stories are tender, real, and yes... they might make you cry. That's kind of the point of this game.</p>
+      <div class="links">
+        <a href="https://www.amazon.com/Carry-Dad-Lance-Wade-Fresquez/dp/B0CMR7W1TC" target="_blank" rel="noopener">Buy Carry Me, Dad on Amazon</a>
+        <a href="https://www.amazon.com/Through-Mayas-Eyes-Lance-Fresquez/dp/B0DPH4ZR4Q" target="_blank" rel="noopener">Buy Through Maya's Eyes on Amazon</a>
+      </div>
+    </section>
+
+    <footer>
+      <p>Made with love (and a few tears) to support Lance's work. Not affiliated officially — just a friend cheering him on.</p>
+      <p>Progress saved automatically in your browser.</p>
+    </footer>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
