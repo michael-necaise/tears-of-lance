@@ -115,9 +115,9 @@ function format(num) {
 function updateSprucePower() {
   if (state.tears >= 1000) {
     state.spruceUnlocked = true;
-    // +0.01x for every 1,000 tears
+    // +0.01x for every 1,000 tears, capped at 10,000x
     const thousands = Math.floor(state.tears / 1000);
-    state.sprucePower = 1 + (thousands * 0.01);
+    state.sprucePower = Math.min(10000, 1 + (thousands * 0.01));
   } else {
     state.spruceUnlocked = false;
     state.sprucePower = 1;
