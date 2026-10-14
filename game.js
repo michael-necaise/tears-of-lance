@@ -44,19 +44,19 @@ const upgrades = [
     owned: 0
   },
   {
-    id: 'reread',
-    name: 'Reread Power',
-    description: 'Each book generates 25% more tears.',
-    cost: 100,
-    effect: () => { state.multiplier *= 1.25; },
+    id: 'emotional',
+    name: 'Emotional Depth',
+    description: 'The stories hit harder. +10 base TPS to all books.',
+    cost: 200,
+    effect: () => { books.forEach(b => b.baseTps += 10); },
     owned: 0
   },
   {
-    id: 'emotional',
-    name: 'Emotional Depth',
-    description: 'The stories hit harder. +0.5 base TPS to all books.',
-    cost: 200,
-    effect: () => { books.forEach(b => b.baseTps += 0.5); },
+    id: 'reread',
+    name: 'Reread Power',
+    description: 'Each book generates 69% more tears.',
+    cost: 100,
+    effect: () => { state.multiplier *= 1.69; },
     owned: 0
   }
 ];
