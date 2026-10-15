@@ -1,14 +1,14 @@
 const MAX_OWNED = 69;
-const SAVE_KEY = 'tearsOfLance_v6';
+const SAVE_KEY = 'tearsOfLance_v7';
 
 const books = [
   {
     id: 'carry-me',
     name: 'Carry Me, Dad',
     description: 'A tender story of a father carrying his son through life\'s mountains and valleys. Written for Owen.',
-    baseTps: 0.3,
+    baseTps: 1,
     owned: 1,
-    cost: 50,
+    cost: 25,
     unlocked: true,
     amazon: 'https://www.amazon.com/Carry-Dad-Lance-Wade-Fresquez/dp/B0CMR7W1TC'
   },
@@ -16,7 +16,7 @@ const books = [
     id: 'maya',
     name: 'Through Maya\'s Eyes',
     description: 'Maya the blind chocolate lab sees the strength and beauty in all her friends. A story of inclusion.',
-    baseTps: 0.8,
+    baseTps: 2,
     owned: 0,
     cost: 100,
     unlocked: false,
@@ -26,7 +26,7 @@ const books = [
     id: 'walk-with-me',
     name: 'Walk with Me',
     description: 'A heartfelt journey of walking side by side through life\'s paths, moments, and challenges. Another story that hits right in the feels.',
-    baseTps: 1.5,
+    baseTps: 4,
     owned: 0,
     cost: 750,
     unlocked: false,
@@ -95,7 +95,6 @@ const cryMessages = [
   "More tears incoming..."
 ];
 
-// Extended suffixes: Qa, Qb, Qc, ... 
 const SUFFIXES = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qb', 'Qc', 'Qd', 'Qe', 'Qf', 'Qg', 'Qh', 'Qi', 'Qj', 'Qk'];
 
 function load() {
@@ -129,7 +128,7 @@ function format(num) {
 
   const suffix = SUFFIXES[tier];
   const scaled = num / Math.pow(1000, tier);
-  return scaled.toFixed(tier >= 1 ? 2 : 1) + suffix;
+  return scaled.toFixed(2) + suffix;
 }
 
 function updateSprucePower() {
@@ -276,19 +275,19 @@ function resetProgress() {
   summitShown = false;
 
   books[0].owned = 1;
-  books[0].cost = 50;
+  books[0].cost = 25;
   books[0].unlocked = true;
-  books[0].baseTps = 0.3;
+  books[0].baseTps = 1;
 
   books[1].owned = 0;
   books[1].cost = 100;
   books[1].unlocked = false;
-  books[1].baseTps = 0.8;
+  books[1].baseTps = 2;
 
   books[2].owned = 0;
   books[2].cost = 750;
   books[2].unlocked = false;
-  books[2].baseTps = 1.5;
+  books[2].baseTps = 4;
 
   upgrades.forEach(u => {
     u.owned = 0;
@@ -306,7 +305,8 @@ function resetProgress() {
 }
 
 function tick() {
-  state.tears += calculateTps() / 10;
+  const tps = calculateTps();
+  state.tears += tps / 10;
   if (state.tears >= 100 && !books[1].unlocked) {
     books[1].unlocked = true;
   }
