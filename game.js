@@ -1,5 +1,5 @@
 const MAX_OWNED = 69;
-const SAVE_KEY = 'tearsOfLance_v5';
+const SAVE_KEY = 'tearsOfLance_v6';
 
 const books = [
   {
@@ -8,7 +8,7 @@ const books = [
     description: 'A tender story of a father carrying his son through life\'s mountains and valleys. Written for Owen.',
     baseTps: 0.3,
     owned: 1,
-    cost: 0,
+    cost: 50,
     unlocked: true,
     amazon: 'https://www.amazon.com/Carry-Dad-Lance-Wade-Fresquez/dp/B0CMR7W1TC'
   },
@@ -80,7 +80,7 @@ let state = {
 
 let summitShown = false;
 let lastBuyTime = 0;
-const BUY_COOLDOWN = 150; // ms to prevent rapid-fire issues
+const BUY_COOLDOWN = 150;
 
 const cryMessages = [
   "That's the good cry...",
@@ -94,6 +94,9 @@ const cryMessages = [
   "Strength in vulnerability.",
   "More tears incoming..."
 ];
+
+// Extended suffixes: Qa, Qb, Qc, ... 
+const SUFFIXES = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qb', 'Qc', 'Qd', 'Qe', 'Qf', 'Qg', 'Qh', 'Qi', 'Qj', 'Qk'];
 
 function load() {
   const saved = localStorage.getItem(SAVE_KEY);
@@ -119,12 +122,14 @@ function save() {
 
 function format(num) {
   num = Number(num) || 0;
-  if (num >= 1e15) return (num / 1e15).toFixed(2) + 'Qa';
-  if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
-  if (num >= 1e9)  return (num / 1e9).toFixed(2) + 'B';
-  if (num >= 1e6)  return (num / 1e6).toFixed(2) + 'M';
-  if (num >= 1e3)  return (num / 1e3).toFixed(1) + 'K';
-  return Math.floor(num).toLocaleString();
+  if (num < 1000) return Math.floor(num).toLocaleString();
+
+  let tier = Math.floor(Math.log10(num) / 3);
+  if (tier >= SUFFIXES.length) tier = SUFFIXES.length - 1;
+
+  const suffix = SUFFIXES[tier];
+  const scaled = num / Math.pow(1000, tier);
+  return scaled.toFixed(tier >= 1 ? 2 : 1) + suffix;
 }
 
 function updateSprucePower() {
@@ -144,8 +149,7 @@ function calculateTps() {
 }
 
 function everythingMaxed() {
-  // Starting book (cost === 0) doesn't need to be bought to 69
-  const booksMaxed = books.every(b => b.cost === 0 || b.owned >= MAX_OWNED);
+  const booksMaxed = books.every(b => b.owned >= MAX_OWNED);
   const upgradesMaxed = upgrades.every(u => u.owned >= MAX_OWNED);
   return booksMaxed && upgradesMaxed;
 }
@@ -178,7 +182,6 @@ function render() {
   const booksEl = document.getElementById('booksList');
   booksEl.innerHTML = books.map(b => {
     const atMax = b.owned >= MAX_OWNED;
-    const isStarting = b.cost === 0;
     return `
     <div class="book">
       <div class="book-info">
@@ -189,7 +192,7 @@ function render() {
       <div class="book-stats">
         ${b.unlocked ? `
           <div>${format(b.owned * b.baseTps * state.multiplier * state.sprucePower)} tears/sec</div>
-          ${!isStarting && !atMax ? `<button class="buy-btn" data-type="book" data-id="${b.id}" ${state.tears < b.cost ? 'disabled' : ''}>Buy for ${format(b.cost)} 💧</button>` : atMax ? '<div>Maxed (69)</div>' : '<div>Starting book</div>'}
+          ${!atMax ? `<button class="buy-btn" data-type="book" data-id="${b.id}" ${state.tears < b.cost ? 'disabled' : ''}>Buy for ${format(b.cost)} 💧</button>` : '<div>Maxed (69)</div>'}
         ` : `<div style="color:var(--muted)">Unlock at ${format(b.cost)} tears</div>`}
       </div>
     </div>
@@ -210,7 +213,6 @@ function render() {
     </div>
   `;}).join('');
 
-  // Attach listeners to newly rendered buttons
   document.querySelectorAll('.buy-btn').forEach(btn => {
     btn.addEventListener('click', handleBuy);
   });
@@ -274,7 +276,7 @@ function resetProgress() {
   summitShown = false;
 
   books[0].owned = 1;
-  books[0].cost = 0;
+  books[0].cost = 50;
   books[0].unlocked = true;
   books[0].baseTps = 0.3;
 
