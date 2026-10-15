@@ -78,6 +78,8 @@ let state = {
   lastSave: Date.now()
 };
 
+let summitShown = false;
+
 const cryMessages = [
   "That's the good cry...",
   "Owen would understand.",
@@ -145,6 +147,13 @@ function everythingMaxed() {
   return booksMaxed && upgradesMaxed;
 }
 
+function showSummitPopup() {
+  const modal = document.getElementById('summitModal');
+  if (modal) {
+    modal.style.display = 'flex';
+  }
+}
+
 function render() {
   document.getElementById('tears').textContent = format(state.tears);
   document.getElementById('tps').textContent = format(calculateTps());
@@ -158,13 +167,10 @@ function render() {
     spruceEl.textContent = 'Locked';
   }
 
-  const summitEl = document.getElementById('summitMessage');
-  const summitText = document.getElementById('summitText');
-  if (everythingMaxed()) {
-    summitText.textContent = 'Congratulations, you summited the mountain! 🏔\ufe0f💧';
-    summitEl.style.display = 'block';
-  } else {
-    summitEl.style.display = 'none';
+  // Show popup once when everything is maxed
+  if (everythingMaxed() && !summitShown) {
+    summitShown = true;
+    showSummitPopup();
   }
 
   const booksEl = document.getElementById('booksList');
@@ -246,6 +252,7 @@ function resetProgress() {
     sprucePower: 1,
     lastSave: Date.now()
   };
+  summitShown = false;
 
   // Reset books to initial values
   books[0].owned = 1;
@@ -273,6 +280,7 @@ function resetProgress() {
   });
 
   localStorage.removeItem(SAVE_KEY);
+  document.getElementById('summitModal').style.display = 'none';
   updateSprucePower();
   render();
 }
