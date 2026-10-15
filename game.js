@@ -1,5 +1,5 @@
 const MAX_OWNED = 69;
-const SAVE_KEY = 'tearsOfLance_v7';
+const SAVE_KEY = 'tearsOfLance_v8';
 
 const books = [
   {
@@ -38,7 +38,7 @@ const upgrades = [
   {
     id: 'tissues',
     name: 'Premium Tissues',
-    description: 'Better absorption. +1 click power.',
+    description: 'Better absorption. +1 auto clicker power.',
     cost: 50,
     effect: () => { state.clickPower += 1; },
     owned: 0
@@ -143,8 +143,9 @@ function updateSprucePower() {
 }
 
 function calculateTps() {
-  const base = books.reduce((sum, b) => sum + (b.owned * b.baseTps * state.multiplier), 0);
-  return base * state.sprucePower;
+  const bookTps = books.reduce((sum, b) => sum + (b.owned * b.baseTps * state.multiplier), 0);
+  const autoClickTps = state.clickPower * state.multiplier;
+  return (bookTps + autoClickTps) * state.sprucePower;
 }
 
 function everythingMaxed() {
