@@ -1,5 +1,5 @@
 const MAX_OWNED = 69;
-const SAVE_KEY = 'tearsOfLance_v8';
+const SAVE_KEY = 'tearsOfLance_v9';
 
 const books = [
   {
@@ -66,6 +66,14 @@ const upgrades = [
     cost: 1500,
     effect: () => { state.multiplier *= 1.5; },
     owned: 0
+  },
+  {
+    id: 'clippy',
+    name: 'Clippy the Bookmark',
+    description: '"It looks like you\'re trying to generate tears." Clippy holds your place and boosts all production by 10%.',
+    cost: 1000,
+    effect: () => { state.multiplier *= 1.1; },
+    owned: 0
   }
 ];
 
@@ -92,7 +100,8 @@ const cryMessages = [
   "Spruce power activated!",
   "A father's love is powerful.",
   "Strength in vulnerability.",
-  "More tears incoming..."
+  "More tears incoming...",
+  "Clippy is watching your progress..."
 ];
 
 const SUFFIXES = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qb', 'Qc', 'Qd', 'Qe', 'Qf', 'Qg', 'Qh', 'Qi', 'Qj', 'Qk'];
@@ -296,6 +305,7 @@ function resetProgress() {
     if (u.id === 'reread') u.cost = 250;
     if (u.id === 'emotional') u.cost = 500;
     if (u.id === 'momentum') u.cost = 1500;
+    if (u.id === 'clippy') u.cost = 1000;
   });
 
   localStorage.removeItem(SAVE_KEY);
