@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Tears of Lance | Idle Game</title>
   <link rel="stylesheet" href="styles.css">
   <style>
+    * { touch-action: manipulation; }
     .modal {
       display: none;
       position: fixed;
@@ -46,6 +47,7 @@
       border-radius: 8px;
       cursor: pointer;
     }
+    button { touch-action: manipulation; }
   </style>
 </head>
 <body>
@@ -118,7 +120,7 @@
       <img src="lance.jpg" alt="Lance">
       <h2>Congratulations!</h2>
       <p>You summited the mountain! 🏔️💧</p>
-      <button class="close-modal" onclick="document.getElementById('summitModal').style.display='none'">Nice!</button>
+      <button class="close-modal" id="closeSummit">Nice!</button>
     </div>
   </div>
 
