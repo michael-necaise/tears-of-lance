@@ -1,5 +1,5 @@
 const MAX_OWNED = 69;
-const SAVE_KEY = 'tearsOfLance_v9';
+const SAVE_KEY = 'tearsOfLance_v10';
 
 const books = [
   {
@@ -221,20 +221,19 @@ function render() {
       </div>
     </div>
   `;}).join('');
-
-  document.querySelectorAll('.buy-btn').forEach(btn => {
-    btn.addEventListener('click', handleBuy);
-  });
 }
 
 function handleBuy(e) {
+  const btn = e.target.closest('.buy-btn');
+  if (!btn || btn.disabled) return;
+
   e.preventDefault();
   const now = Date.now();
   if (now - lastBuyTime < BUY_COOLDOWN) return;
   lastBuyTime = now;
 
-  const type = e.target.dataset.type;
-  const id = e.target.dataset.id;
+  const type = btn.dataset.type;
+  const id = btn.dataset.id;
   if (type === 'book') buyBook(id);
   if (type === 'upgrade') buyUpgrade(id);
 }
@@ -325,9 +324,15 @@ function tick() {
     books[2].unlocked = true;
   }
   updateSprucePower();
-  render();
+  // Only update the main stats frequently; full re-render less often to keep buttons stable
+  document.getElementById('tears').textContent = format(state.tears);
+  document.getElementById('tps').textContent = format(calculateTps());
+  if (Math.random() < 0.1) render(); // occasional full render for button states
   if (Math.random() < 0.05) save();
 }
+
+// Event delegation — one listener that never gets destroyed by re-renders
+document.addEventListener('click', handleBuy);
 
 document.getElementById('cryButton').addEventListener('click', cry);
 document.getElementById('resetButton').addEventListener('click', resetProgress);
