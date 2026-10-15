@@ -1,12 +1,12 @@
 const MAX_OWNED = 69;
-const SAVE_KEY = 'tearsOfLance_v3'; // Bumped to apply new balance + cost fix cleanly
+const SAVE_KEY = 'tearsOfLance_v4'; // Bumped for rebalance
 
 const books = [
   {
     id: 'carry-me',
     name: 'Carry Me, Dad',
     description: 'A tender story of a father carrying his son through life\'s mountains and valleys. Written for Owen.',
-    baseTps: 0.5,
+    baseTps: 0.3,
     owned: 1,
     cost: 0,
     unlocked: true,
@@ -16,9 +16,9 @@ const books = [
     id: 'maya',
     name: 'Through Maya\'s Eyes',
     description: 'Maya the blind chocolate lab sees the strength and beauty in all her friends. A story of inclusion.',
-    baseTps: 1.2,
+    baseTps: 0.8,
     owned: 0,
-    cost: 50,
+    cost: 100,
     unlocked: false,
     amazon: 'https://www.amazon.com/Through-Mayas-Eyes-Lance-Fresquez/dp/B0DPH4ZR4Q'
   },
@@ -26,9 +26,9 @@ const books = [
     id: 'walk-with-me',
     name: 'Walk with Me',
     description: 'A heartfelt journey of walking side by side through life\'s paths, moments, and challenges. Another story that hits right in the feels.',
-    baseTps: 2.0,
+    baseTps: 1.5,
     owned: 0,
-    cost: 250,
+    cost: 750,
     unlocked: false,
     amazon: 'https://a.co/d/0aWb3Vop'
   }
@@ -39,32 +39,32 @@ const upgrades = [
     id: 'tissues',
     name: 'Premium Tissues',
     description: 'Better absorption. +1 click power.',
-    cost: 25,
+    cost: 50,
     effect: () => { state.clickPower += 1; },
     owned: 0
   },
   {
     id: 'emotional',
     name: 'Emotional Depth',
-    description: 'The stories hit harder. +10 base TPS to all books.',
-    cost: 200,
-    effect: () => { books.forEach(b => b.baseTps += 10); },
+    description: 'The stories hit harder. +3 base TPS to all books.',
+    cost: 500,
+    effect: () => { books.forEach(b => b.baseTps += 3); },
     owned: 0
   },
   {
     id: 'reread',
     name: 'Reread Power',
-    description: 'Each book generates 69% more tears.',
-    cost: 100,
-    effect: () => { state.multiplier *= 1.69; },
+    description: 'Each book generates 25% more tears.',
+    cost: 250,
+    effect: () => { state.multiplier *= 1.25; },
     owned: 0
   },
   {
     id: 'momentum',
     name: 'Trail Momentum',
-    description: 'Pick up speed on the trail. Doubles all tear production.',
-    cost: 500,
-    effect: () => { state.multiplier *= 2; },
+    description: 'Pick up speed on the trail. +50% all tear production.',
+    cost: 1500,
+    effect: () => { state.multiplier *= 1.5; },
     owned: 0
   }
 ];
@@ -116,20 +116,20 @@ function save() {
 }
 
 function format(num) {
-  if (num >= 1e15) return (num / 1e15).toFixed(2) + 'Qa'; // Quadrillion
-  if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';  // Trillion
-  if (num >= 1e9)  return (num / 1e9).toFixed(2) + 'B';   // Billion
-  if (num >= 1e6)  return (num / 1e6).toFixed(2) + 'M';   // Million
-  if (num >= 1e3)  return (num / 1e3).toFixed(1) + 'K';   // Thousand
+  if (num >= 1e15) return (num / 1e15).toFixed(2) + 'Qa';
+  if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
+  if (num >= 1e9)  return (num / 1e9).toFixed(2) + 'B';
+  if (num >= 1e6)  return (num / 1e6).toFixed(2) + 'M';
+  if (num >= 1e3)  return (num / 1e3).toFixed(1) + 'K';
   return Math.floor(num).toLocaleString();
 }
 
 function updateSprucePower() {
-  if (state.tears >= 1000) {
+  if (state.tears >= 5000) {
     state.spruceUnlocked = true;
-    // +0.01x for every 1,000 tears, capped at 69,000x
+    // Slower growth: +0.005x per 1k tears, capped at 10x for ~1hr pacing
     const thousands = Math.floor(state.tears / 1000);
-    state.sprucePower = Math.min(69000, 1 + (thousands * 0.01));
+    state.sprucePower = Math.min(10, 1 + (thousands * 0.005));
   } else {
     state.spruceUnlocked = false;
     state.sprucePower = 1;
@@ -167,7 +167,6 @@ function render() {
     spruceEl.textContent = 'Locked';
   }
 
-  // Show popup once when everything is maxed
   if (everythingMaxed() && !summitShown) {
     summitShown = true;
     showSummitPopup();
@@ -213,7 +212,7 @@ function buyBook(id) {
   if (!book || state.tears < book.cost || book.owned >= MAX_OWNED) return;
   state.tears -= book.cost;
   book.owned += 1;
-  book.cost = Math.floor(book.cost * 1.5);
+  book.cost = Math.floor(book.cost * 1.6);
   book.unlocked = true;
   save();
   render();
@@ -225,7 +224,7 @@ function buyUpgrade(id) {
   state.tears -= up.cost;
   up.owned += 1;
   up.effect();
-  up.cost = Math.floor(up.cost * 1.8);
+  up.cost = Math.floor(up.cost * 1.9);
   save();
   render();
 }
@@ -243,7 +242,6 @@ function cry() {
 function resetProgress() {
   if (!confirm('Reset all progress? This cannot be undone.')) return;
 
-  // Reset state
   state = {
     tears: 0,
     clickPower: 1,
@@ -254,29 +252,27 @@ function resetProgress() {
   };
   summitShown = false;
 
-  // Reset books to initial values
   books[0].owned = 1;
   books[0].cost = 0;
   books[0].unlocked = true;
-  books[0].baseTps = 0.5;
+  books[0].baseTps = 0.3;
 
   books[1].owned = 0;
-  books[1].cost = 50;
+  books[1].cost = 100;
   books[1].unlocked = false;
-  books[1].baseTps = 1.2;
+  books[1].baseTps = 0.8;
 
   books[2].owned = 0;
-  books[2].cost = 250;
+  books[2].cost = 750;
   books[2].unlocked = false;
-  books[2].baseTps = 2.0;
+  books[2].baseTps = 1.5;
 
-  // Reset upgrades
   upgrades.forEach(u => {
     u.owned = 0;
-    if (u.id === 'tissues') u.cost = 25;
-    if (u.id === 'reread') u.cost = 100;
-    if (u.id === 'emotional') u.cost = 200;
-    if (u.id === 'momentum') u.cost = 500;
+    if (u.id === 'tissues') u.cost = 50;
+    if (u.id === 'reread') u.cost = 250;
+    if (u.id === 'emotional') u.cost = 500;
+    if (u.id === 'momentum') u.cost = 1500;
   });
 
   localStorage.removeItem(SAVE_KEY);
@@ -286,17 +282,16 @@ function resetProgress() {
 }
 
 function tick() {
-  state.tears += calculateTps() / 10; // 100ms interval
-  // Unlock books based on tear thresholds
-  if (state.tears >= 50 && !books[1].unlocked) {
+  state.tears += calculateTps() / 10;
+  if (state.tears >= 100 && !books[1].unlocked) {
     books[1].unlocked = true;
   }
-  if (state.tears >= 250 && !books[2].unlocked) {
+  if (state.tears >= 750 && !books[2].unlocked) {
     books[2].unlocked = true;
   }
   updateSprucePower();
   render();
-  if (Math.random() < 0.05) save(); // occasional auto-save
+  if (Math.random() < 0.05) save();
 }
 
 document.getElementById('cryButton').addEventListener('click', cry);
