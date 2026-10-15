@@ -1,5 +1,5 @@
 const MAX_OWNED = 69;
-const SAVE_KEY = 'tearsOfLance_v4'; // Bumped for rebalance
+const SAVE_KEY = 'tearsOfLance_v5';
 
 const books = [
   {
@@ -79,6 +79,8 @@ let state = {
 };
 
 let summitShown = false;
+let lastBuyTime = 0;
+const BUY_COOLDOWN = 150; // ms to prevent rapid-fire issues
 
 const cryMessages = [
   "That's the good cry...",
@@ -116,6 +118,7 @@ function save() {
 }
 
 function format(num) {
+  num = Number(num) || 0;
   if (num >= 1e15) return (num / 1e15).toFixed(2) + 'Qa';
   if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
   if (num >= 1e9)  return (num / 1e9).toFixed(2) + 'B';
@@ -127,7 +130,6 @@ function format(num) {
 function updateSprucePower() {
   if (state.tears >= 5000) {
     state.spruceUnlocked = true;
-    // Slower growth: +0.005x per 1k tears, capped at 10x for ~1hr pacing
     const thousands = Math.floor(state.tears / 1000);
     state.sprucePower = Math.min(10, 1 + (thousands * 0.005));
   } else {
@@ -142,7 +144,8 @@ function calculateTps() {
 }
 
 function everythingMaxed() {
-  const booksMaxed = books.every(b => b.owned >= MAX_OWNED);
+  // Starting book (cost === 0) doesn't need to be bought to 69
+  const booksMaxed = books.every(b => b.cost === 0 || b.owned >= MAX_OWNED);
   const upgradesMaxed = upgrades.every(u => u.owned >= MAX_OWNED);
   return booksMaxed && upgradesMaxed;
 }
@@ -169,12 +172,13 @@ function render() {
 
   if (everythingMaxed() && !summitShown) {
     summitShown = true;
-    showSummitPopup();
+    setTimeout(showSummitPopup, 100);
   }
 
   const booksEl = document.getElementById('booksList');
   booksEl.innerHTML = books.map(b => {
     const atMax = b.owned >= MAX_OWNED;
+    const isStarting = b.cost === 0;
     return `
     <div class="book">
       <div class="book-info">
@@ -185,7 +189,7 @@ function render() {
       <div class="book-stats">
         ${b.unlocked ? `
           <div>${format(b.owned * b.baseTps * state.multiplier * state.sprucePower)} tears/sec</div>
-          ${b.cost > 0 && !atMax ? `<button class="buy-btn" onclick="buyBook('${b.id}')" ${state.tears < b.cost ? 'disabled' : ''}>Buy for ${format(b.cost)} 💧</button>` : atMax ? '<div>Maxed (69)</div>' : '<div>Starting book</div>'}
+          ${!isStarting && !atMax ? `<button class="buy-btn" data-type="book" data-id="${b.id}" ${state.tears < b.cost ? 'disabled' : ''}>Buy for ${format(b.cost)} 💧</button>` : atMax ? '<div>Maxed (69)</div>' : '<div>Starting book</div>'}
         ` : `<div style="color:var(--muted)">Unlock at ${format(b.cost)} tears</div>`}
       </div>
     </div>
@@ -201,10 +205,27 @@ function render() {
         <div class="upgrade-desc">${u.description}</div>
       </div>
       <div class="upgrade-cost">
-        ${!atMax ? `<button class="buy-btn" onclick="buyUpgrade('${u.id}')" ${state.tears < u.cost ? 'disabled' : ''}>Buy for ${format(u.cost)} 💧</button>` : '<div>Maxed (69)</div>'}
+        ${!atMax ? `<button class="buy-btn" data-type="upgrade" data-id="${u.id}" ${state.tears < u.cost ? 'disabled' : ''}>Buy for ${format(u.cost)} 💧</button>` : '<div>Maxed (69)</div>'}
       </div>
     </div>
   `;}).join('');
+
+  // Attach listeners to newly rendered buttons
+  document.querySelectorAll('.buy-btn').forEach(btn => {
+    btn.addEventListener('click', handleBuy);
+  });
+}
+
+function handleBuy(e) {
+  e.preventDefault();
+  const now = Date.now();
+  if (now - lastBuyTime < BUY_COOLDOWN) return;
+  lastBuyTime = now;
+
+  const type = e.target.dataset.type;
+  const id = e.target.dataset.id;
+  if (type === 'book') buyBook(id);
+  if (type === 'upgrade') buyUpgrade(id);
 }
 
 function buyBook(id) {
@@ -276,7 +297,8 @@ function resetProgress() {
   });
 
   localStorage.removeItem(SAVE_KEY);
-  document.getElementById('summitModal').style.display = 'none';
+  const modal = document.getElementById('summitModal');
+  if (modal) modal.style.display = 'none';
   updateSprucePower();
   render();
 }
@@ -296,6 +318,13 @@ function tick() {
 
 document.getElementById('cryButton').addEventListener('click', cry);
 document.getElementById('resetButton').addEventListener('click', resetProgress);
+
+const closeBtn = document.getElementById('closeSummit');
+if (closeBtn) {
+  closeBtn.addEventListener('click', () => {
+    document.getElementById('summitModal').style.display = 'none';
+  });
+}
 
 load();
 updateSprucePower();
